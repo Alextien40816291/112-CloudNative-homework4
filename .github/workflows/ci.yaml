@@ -19,7 +19,7 @@ jobs:
     - name: Use Node.js for backend
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
         
     - name: Install Dependencies for backend
       run: cd backend && npm ci
@@ -31,7 +31,7 @@ jobs:
     - name: Use Node.js for frontend
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'
         
     - name: Install Dependencies for frontend
       run: cd frontend && npm ci
