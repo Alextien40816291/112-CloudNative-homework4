@@ -36,5 +36,11 @@ jobs:
     - name: Install Dependencies for frontend
       run: cd frontend && npm ci
 
+    - name: Start frontend server
+      run: |
+        cd frontend
+        npm start &
+        sleep 15
+
     - name: Run tests for frontend
       run: cd frontend && npm run cy:test
