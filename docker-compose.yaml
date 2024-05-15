@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - /backend
+    ports:
+      - "127.0.0.1:8888:8888"
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb://mongo:27017/mongo
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - /frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - API_BASE_URL=http://backend:8888
+    depends_on:
+      - backend
