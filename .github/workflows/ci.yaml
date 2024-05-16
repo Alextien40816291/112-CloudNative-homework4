@@ -1,46 +1,46 @@
 name: Run Tests
 
-on: [push]
+on: 
+  push:
+    branches:
+      - '*'      
 
 jobs:
-  run-tests:
+  build:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo
-        ports: 
-          - 27017:27017
-
     steps:
-    - uses: actions/checkout@v2
+    - name: Check out code
+      uses: actions/checkout@v2
 
-    # Backend tests
+    - name: Build docker-compose
+      run: docker-compose --file docker-compose.yaml up -d
+
+    - name: Sleep
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '15s'
+
     - name: Use Node.js for backend
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-        
-    - name: Install Dependencies for backend
-      run: cd backend && npm ci
 
-    - name: Run tests for backend
-      run: cd backend && npm test
-
-    # Frontend tests
     - name: Use Node.js for frontend
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-        
+
+    - name: Install Dependencies for backend
+      run: cd backend && npm ci
+
     - name: Install Dependencies for frontend
       run: cd frontend && npm ci
 
-    - name: Start frontend server
-      run: |
-        cd frontend
-        npm start &
-        sleep 15
+    - name: Run tests for backend
+      run: cd backend && npm test
 
     - name: Run tests for frontend
+      env:
+        CYPRESS_baseUrl: http://backend:8888
       run: cd frontend && npm run cy:test
