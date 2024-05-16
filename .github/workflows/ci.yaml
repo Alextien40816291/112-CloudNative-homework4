@@ -44,10 +44,10 @@ jobs:
         cd frontend
         npm install
 
-    - name: Run frontend development mode
-      run: |
-        cd frontend
-        npm run dev
+    # - name: Run frontend development mode
+    #   run: |
+    #     cd frontend
+    #     npm run dev
 
     - name: Run cypress tests
       run: |
