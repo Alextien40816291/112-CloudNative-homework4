@@ -52,4 +52,4 @@ jobs:
     - name: Run cypress tests
       run: |
         cd frontend
-        npm run cy:test
+        npx cypress run --headed
