@@ -41,6 +41,7 @@ jobs:
 
     - name: Install frontend dependencies
       run: |
+        cd frontend
         npm install
         npm install start-server-and-test --save-dev
 
