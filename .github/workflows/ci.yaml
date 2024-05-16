@@ -43,10 +43,13 @@ jobs:
       run: |
         cd frontend
         npm install
-        npm install start-server-and-test --save-dev
-
+        
     - name: Run frontend development mode and cypress tests
       run: |
         cd frontend
         npm run dev &
-        npx start-server-and-test http-get://localhost:5173 npm:cy:test
+    
+    - name: Run cypress tests
+      run: |
+        cd frontend
+        npm run cy:test
