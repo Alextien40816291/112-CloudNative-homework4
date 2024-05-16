@@ -49,4 +49,4 @@ jobs:
       run: |
         cd frontend
         npm run dev &
-        npx start-server-and-test http://localhost:5173 cy:test
+        npx start-server-and-test http-get://localhost:5173 npm:cy:test
