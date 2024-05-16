@@ -1,46 +1,57 @@
-name: Run Tests
+name: Continuous Integration
 
-on: 
+on:
   push:
-    branches:
-      - '*'      
+    branches: [ main ]
 
 jobs:
-  build:
+  backend:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    - name: Build docker-compose
-      run: docker-compose --file docker-compose.yaml up -d
-
-    - name: Sleep
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '15s'
-
-    - name: Use Node.js for backend
-      uses: actions/setup-node@v2
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.4.0
       with:
         node-version: '16'
 
-    - name: Use Node.js for frontend
-      uses: actions/setup-node@v2
+    - name: Run mongo container
+      run: docker run -d -p 27017:27017 mongo
+
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm install
+
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm run test
+
+  frontend:
+    needs: backend
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.4.0
       with:
         node-version: '16'
 
-    - name: Install Dependencies for backend
-      run: cd backend && npm ci
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm install
 
-    - name: Install Dependencies for frontend
-      run: cd frontend && npm ci
+    - name: Run frontend development mode
+      run: |
+        cd frontend
+        npm run dev
 
-    - name: Run tests for backend
-      run: cd backend && npm test
-
-    - name: Run tests for frontend
-      env:
-        CYPRESS_baseUrl: http://backend:8888
-      run: cd frontend && npm run cy:test
+    - name: Run cypress tests
+      run: |
+        cd frontend
+        npm run cy:test
