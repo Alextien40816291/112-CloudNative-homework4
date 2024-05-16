@@ -23,7 +23,7 @@ jobs:
     - name: Run backend tests and generate coverage report
       run: |
         cd backend
-        npm run test -- --coverage
+        npm run test
 
     - name: Publish coverage report
       uses: actions/upload-artifact@v2
