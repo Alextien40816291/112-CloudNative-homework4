@@ -26,7 +26,7 @@ jobs:
         npm run test
 
     - name: Publish coverage report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: backend-coverage-report
         path: backend/coverage/
@@ -57,19 +57,7 @@ jobs:
         cd frontend
         npm run dev &
     
-    - name: Run cypress tests and generate coverage report
+    - name: Run cypress tests
       run: |
         cd frontend
-        npx cypress run --headed --coverage
-
-    - name: Publish coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: frontend-coverage-report
-        path: frontend/coverage/
-
-    # # Add the step for coverage comparison and decision making
-    # - name: Compare Coverage and Decide
-    #   run: |
-    #     # Add your comparison script here
-    #     ...
+        npx cypress run --headed
