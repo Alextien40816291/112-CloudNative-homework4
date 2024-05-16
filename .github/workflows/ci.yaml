@@ -41,15 +41,11 @@ jobs:
 
     - name: Install frontend dependencies
       run: |
-        cd frontend
         npm install
+        npm install start-server-and-test --save-dev
 
-    - name: Run frontend development mode
+    - name: Run frontend development mode and cypress tests
       run: |
         cd frontend
-        npm run dev
-
-    - name: Run cypress tests
-      run: |
-        cd frontend
-        npm run cy:test
+        npm run dev &
+        npx start-server-and-test http://localhost:5173 cy:test
