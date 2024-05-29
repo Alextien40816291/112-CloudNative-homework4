@@ -8,33 +8,33 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup Node.js environment
       uses: actions/setup-node@v4
+
     - name: Run mongo container
       run: docker run -d -p 27017:27017 mongo
+
     - name: Install backend dependencies
       run: |
         cd backend
         npm install
+
     - name: Run backend tests and generate coverage report
       run: |
         cd backend
         npm run test
-    - name: Cache backend coverage report
-      uses: actions/cache@v3
-      with:
-        path: backend/coverage/
-        key: backend-coverage-${{ github.run_id }}
-        restore-keys: backend-coverage
-    - name: Publish backend coverage report
+
+    - name: Publish coverage report
       uses: actions/upload-artifact@v4
       with:
-        name: backend-coverage
+        name: backend-coverage-report
         path: backend/coverage/
 
   frontend:
     needs: backend
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
 
@@ -50,14 +50,8 @@ jobs:
       run: |
         cd frontend
         npm run dev &
-
-    - name: Run cypress tests and generate coverage report
+    
+    - name: Run cypress tests
       run: |
         cd frontend
-        npx cypress run --headed --coverage
-
-    - name: Publish frontend coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: frontend-coverage
-        path: frontend/coverage/
+        npx cypress run --headed
