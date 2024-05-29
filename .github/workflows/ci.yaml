@@ -16,20 +16,50 @@ jobs:
       run: docker run -d -p 27017:27017 mongo
 
     - name: Install backend dependencies
-      run: |
-        cd backend
-        npm install
+      run: cd backend && npm install
 
     - name: Run backend tests and generate coverage report
+      run: cd backend && npm run test
+
+    - name: Store current line coverage
+      id: store_coverage
       run: |
-        cd backend
-        npm run test
+        FILE=./backend/coverage/coverage-final.json
+        COVERAGE=$(grep -Po '("lines": ){1}.*?[^\\],"branches"' $FILE | egrep -o '("pct": )[0-9]+(\.[0-9]{1,2}|)')
+        COVERAGE=${COVERAGE//"pct": }
+        echo $COVERAGE > ./curr_coverage.txt
+        echo "::set-output name=coverage::$COVERAGE"
 
     - name: Publish coverage report
       uses: actions/upload-artifact@v4
       with:
         name: backend-coverage-report
         path: backend/coverage/
+      
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: curr-coverage
+        path: ./curr_coverage.txt
+
+    - name: Download previous coverage
+      uses: actions/download-artifact@v2
+      with:
+        name: prev-coverage
+        path: .
+
+    - name: Compare coverage reports
+      run: |
+        PREV_FILE=./prev_coverage.txt
+        CURR_FILE=./curr_coverage.txt
+        if [ -f "$PREV_FILE" ]; then
+          PREV_COVERAGE=$(cat $PREV_FILE)
+          CURR_COVERAGE=$(cat $CURR_FILE)
+          if (( $(echo "$CURR_COVERAGE < $PREV_COVERAGE" | bc -l) )); then
+            echo "Coverage decreased!"
+            exit 1
+          fi
+        fi    
 
   frontend:
     needs: backend
@@ -42,16 +72,7 @@ jobs:
       uses: actions/setup-node@v2
 
     - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm install
+      run: cd frontend && npm install
         
     - name: Run frontend dev mode and cypress tests
-      run: |
-        cd frontend
-        npm run dev &
-    
-    - name: Run cypress tests
-      run: |
-        cd frontend
-        npx cypress run --headed
+      run
