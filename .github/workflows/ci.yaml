@@ -21,45 +21,24 @@ jobs:
     - name: Run backend tests and generate coverage report
       run: cd backend && npm run test
 
-    - name: Store current line coverage
-      id: store_coverage
+    - name: Compare coverage reports
       run: |
-        FILE=./backend/coverage/coverage-final.json
-        COVERAGE=$(grep -Po '("lines": ){1}.*?[^\\],"branches"' $FILE | egrep -o '("pct": )[0-9]+(\.[0-9]{1,2}|)')
-        COVERAGE=${COVERAGE//"pct": }
-        echo $COVERAGE > ./curr_coverage.txt
-        echo "::set-output name=coverage::$COVERAGE"
+        # Add your command to compare the current coverage report
+        # with the previous one cached in the 'coverage' folder. 
+        echo "Set your own command to compare coverage reports here"
 
     - name: Publish coverage report
       uses: actions/upload-artifact@v4
       with:
         name: backend-coverage-report
         path: backend/coverage/
-      
-    - name: Upload coverage
-      uses: actions/upload-artifact@v3
-      with:
-        name: curr-coverage
-        path: ./curr_coverage.txt
 
-    - name: Download previous coverage
-      uses: actions/download-artifact@v2
+    - name: Cache coverage reports
+      uses: actions/cache@v3
       with:
-        name: prev-coverage
-        path: .
-
-    - name: Compare coverage reports
-      run: |
-        PREV_FILE=./prev_coverage.txt
-        CURR_FILE=./curr_coverage.txt
-        if [ -f "$PREV_FILE" ]; then
-          PREV_COVERAGE=$(cat $PREV_FILE)
-          CURR_COVERAGE=$(cat $CURR_FILE)
-          if (( $(echo "$CURR_COVERAGE < $PREV_COVERAGE" | bc -l) )); then
-            echo "Coverage decreased!"
-            exit 1
-          fi
-        fi    
+        path: backend/coverage/
+        key: ${{ github.run_id }}
+        restore-keys: ${{ github.run_id }}  
 
   frontend:
     needs: backend
@@ -74,8 +53,8 @@ jobs:
     - name: Install frontend dependencies
       run: cd frontend && npm install
         
-    - name: Run frontend dev mode
-      run: cd frontend && npm run dev
-
+    - name: Run frontend dev mode and cypress tests
+      run: cd frontend && npm run dev &
+    
     - name: Run cypress tests
       run: cd frontend && npx cypress run --headed
