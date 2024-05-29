@@ -74,5 +74,8 @@ jobs:
     - name: Install frontend dependencies
       run: cd frontend && npm install
         
-    - name: Run frontend dev mode and cypress tests
-      run
+    - name: Run frontend dev mode
+      run: cd frontend && npm run dev
+
+    - name: Run cypress tests
+      run: cd frontend && npx cypress run --headed
